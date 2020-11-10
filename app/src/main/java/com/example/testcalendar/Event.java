@@ -2,12 +2,14 @@ package com.example.testcalendar;
 
 public class Event {
     String title;
+    String location;
     int day, month, year;
     int hour;
     String minute;
 
-    public Event(String title, int day, int month, int year, int hour, int minute) {
+    public Event(String title, String location, int day, int month, int year, int hour, int minute) {
         this.title = title;
+        this.location = location;
         this.day = day;
         this.month = month;
         this.year = year;
@@ -23,9 +25,9 @@ public class Event {
         return title;
     }
 
-    public int getDay() {
-        return day;
-    }
+    public String getLocation() { return location; }
+
+    public int getDay() { return day; }
 
     public int getHour() {
         return hour;

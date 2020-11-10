@@ -11,17 +11,38 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.lang.Integer.parseInt;
 
 public class MainActivity extends AppCompatActivity {
 
+    final String EVENT_NAME = "Event_title", EVENT_LOCATION = "Location";
+    public static final String TAG = "TAG";
+
     RecyclerView.Adapter adapter;
     ArrayList<Event> eventsList = new ArrayList<>();
+
+    Button logout;
+    FloatingActionButton addEventButton;
+
+    FirebaseAuth firebaseAuth;
+    FirebaseFirestore firebaseFirestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +52,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Get the FloatingActionButton we created in our UI
-        FloatingActionButton addEventButton = findViewById(R.id.add_event_fab);
+        addEventButton = findViewById(R.id.add_event_fab);
+
+        // Get the Logout Button we created in our UI
+        logout = findViewById(R.id.Logout_button);
 
         // Add an onClickListener, so that we know when the button is clicked
         addEventButton.setOnClickListener(new View.OnClickListener() {
@@ -67,50 +91,74 @@ public class MainActivity extends AppCompatActivity {
 
                 // Fetch events from the database
                 // This will update the ArrayList "eventsList"
-                getEventsFromSQLiteDatabase(dayOfMonth, month + 1, year);
 
-                // Tell the adapter that the ArrayList is updated
-                // This will make it refresh the UI
-                adapter.notifyDataSetChanged();
+                getEventsFromFirebaseDatabase(dayOfMonth, month + 1, year);
+
+            }
+        });
+
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                firebaseAuth = FirebaseAuth.getInstance();
+                firebaseAuth.signOut();
+                startActivity(new Intent(MainActivity.this, Login.class));
             }
         });
     }
 
-    private void getEventsFromSQLiteDatabase(int day, int month, int year) {
-        // Create a connection to our SQLite Database
-        SQLiteDatabase database = openOrCreateDatabase("Main", MODE_PRIVATE,null);
-
-        // Execute an SQL query to create the table if it does not exist
-        String createTableQuery = "CREATE TABLE IF NOT EXISTS events(title VARCHAR, day INT, month INT, year INT, hour INT, minute INT);";
-        database.execSQL(createTableQuery);
-
-        // Execute a query to fetch all events and store them in a Cursor object
-        String fetchDataQuery = "SELECT * from events WHERE day=" + day + " AND month=" + month + " AND year=" + year + ";";
-        Cursor cursor = database.rawQuery(fetchDataQuery, null);
-        // Make sure the cursor points to the first row
-        cursor.moveToFirst();
+    private void getEventsFromFirebaseDatabase(int day, int month, int year) {
 
         // Clear our ArrayList
         eventsList.clear();
 
-        // Check if there are any rows present
-        if (cursor.getCount() == 0) {
-            return;
-        }
+        String Year = ""+year;
+        String date = day+"-"+month;
+        // Create a connection to our Firebase-Firestore Database
+        firebaseFirestore = FirebaseFirestore.getInstance();
 
-        // Iterate over the rows
-        do {
-            Event event = new Event(cursor.getString(0),
-                    cursor.getInt(1),
-                    cursor.getInt(2),
-                    cursor.getInt(3),
-                    cursor.getInt(4),
-                    cursor.getInt(5));
+        // Execute a query to fetch data
+        firebaseFirestore.collection("Events").document(Year).collection(date)
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
 
-            // Add the event object to our dataset list
-            eventsList.add(event);
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String[] split = document.getId().split(":");
+                        // Log.d(TAG, split[0] + " => " + split[1] + " => " + document.getData());
 
-        } while(cursor.moveToNext());
+                        // Check if there are any rows present
+                        if(document.getData().isEmpty())   {
+                            return;
+                        }
+
+                        Event event = new Event(document.getData().get(EVENT_NAME).toString(),
+                                document.getData().get(EVENT_LOCATION).toString(),
+                                day,
+                                month,
+                                year,
+                                parseInt(split[0]),
+                                parseInt(split[1]));
+
+                        eventsList.add(event);
+                    }
+                    // Tell the adapter that the ArrayList is updated
+                    // This will make it refresh the UI
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Log.d(TAG, "Error getting documents: ", task.getException());
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
+
+
+
 
     }
 

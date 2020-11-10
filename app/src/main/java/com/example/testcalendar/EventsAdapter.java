@@ -32,7 +32,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.MyViewHold
         Event event = eventsList.get(position);
 
         // Set all event info in the UI layout
-        holder.titleView.setText(event.getTitle());
+        holder.titleView.setText(event.getTitle() + "\t-\t" + event.getLocation());
         holder.dateView.setText(event.getDay() + "/" + event.getMonth() + "/" + event.getYear());
 
         String period = "AM";

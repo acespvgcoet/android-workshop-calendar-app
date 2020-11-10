@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "96537864838",
+    "firebase_url": "https://test-calendar-2dd3e.firebaseio.com",
+    "project_id": "test-calendar-2dd3e",
+    "storage_bucket": "test-calendar-2dd3e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:96537864838:android:4a19b29003e1b16c9f7f07",
+        "android_client_info": {
+          "package_name": "com.example.testcalendar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "96537864838-jrpfukv1inmu54pb8ksfebds2bm9lp87.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhzRRaFqKxWoO-XnCdVInSO0nOCgI0Z4M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "96537864838-jrpfukv1inmu54pb8ksfebds2bm9lp87.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

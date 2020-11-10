@@ -1,5 +1,6 @@
 package com.example.testcalendar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
@@ -15,10 +16,21 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TimePicker;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class AddEventActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
+    public static final String TAG = "TAG";
     int day, month, year;
     int hour, minute;
+    FirebaseFirestore firebaseFirestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +70,7 @@ public class AddEventActivity extends AppCompatActivity implements DatePickerDia
             @Override
             public void onClick(View v) {
                 // Save our entered info in the local SQLite Database
-                saveEventToSQLite();
+                saveEventToFirebase();
 
                 // Close this activity and return to the previous page
                 finish();
@@ -99,32 +111,42 @@ public class AddEventActivity extends AppCompatActivity implements DatePickerDia
         this.minute = minute;
     }
 
-    private void saveEventToSQLite() {
+    private void saveEventToFirebase() {
         // This function used the global variables day, month, year etc
         // And created an event entry in the database
 
-        // Get the title of our event
+        // Get the title and location of our event
         EditText eventTitleBox = findViewById(R.id.new_event_title_edittext);
         String eventTitle = eventTitleBox.getText().toString();
 
-        // Create a connection to our SQLite Database
-        SQLiteDatabase database = openOrCreateDatabase("Main", MODE_PRIVATE,null);
+        EditText eventLoactionBox = findViewById(R.id.new_event_location_edittext);
+        String eventLocation = eventLoactionBox.getText().toString();
 
-        // Execute an SQL query to create the table if it does not exist
-        String createTableQuery = "CREATE TABLE IF NOT EXISTS events(title VARCHAR, day INT, month INT, year INT, hour INT, minute INT);";
-        database.execSQL(createTableQuery);
+        String Year = ""+this.year;
+        String date = this.day+"-"+this.month;
+        String time = this.hour+":"+this.minute;
 
-        // Insert all event info in a ContentValues object
-        ContentValues values = new ContentValues();
-        values.put("title", eventTitle);
-        values.put("day", this.day);
-        values.put("month", this.month);
-        values.put("year", this.year);
-        values.put("hour", this.hour);
-        values.put("minute", this.minute);
+        // Create a connection to our Firebase-Firestore Database
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        DocumentReference documentReference = firebaseFirestore.collection("Events").document(Year).collection(date).document(time);
 
-        // Use the built-in function insert() to insert the values as a row in the "events" table
-        database.insert("events", null, values);
+
+        // Insert all event info in a Hashmap
+        Map<String,String> user = new HashMap<>();
+        user.put("Event_title",eventTitle);
+        user.put("Location",eventLocation);
+        documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "onSuccess: Event is created");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: " + e.toString());
+            }
+        });
+
     }
 
 }
