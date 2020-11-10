@@ -69,7 +69,7 @@ public class AddEventActivity extends AppCompatActivity implements DatePickerDia
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Save our entered info in the local SQLite Database
+                // Save our entered info in the Firebase-Firestore Database
                 saveEventToFirebase();
 
                 // Close this activity and return to the previous page
@@ -135,6 +135,8 @@ public class AddEventActivity extends AppCompatActivity implements DatePickerDia
         Map<String,String> user = new HashMap<>();
         user.put("Event_title",eventTitle);
         user.put("Location",eventLocation);
+
+        // Add event information on Firestore
         documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {

@@ -97,9 +97,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // This function will execute when the user selects a logout button
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                // Sign out the user
                 firebaseAuth = FirebaseAuth.getInstance();
                 firebaseAuth.signOut();
                 startActivity(new Intent(MainActivity.this, Login.class));
@@ -124,14 +127,15 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
 
+                    // Check if there are any rows present
+                    if(task.getResult().isEmpty())  {
+                        return;
+                    }
                     for (QueryDocumentSnapshot document : task.getResult()) {
+
+                        // Splits string of hh:mm into hours and minutes
                         String[] split = document.getId().split(":");
                         // Log.d(TAG, split[0] + " => " + split[1] + " => " + document.getData());
-
-                        // Check if there are any rows present
-                        if(document.getData().isEmpty())   {
-                            return;
-                        }
 
                         Event event = new Event(document.getData().get(EVENT_NAME).toString(),
                                 document.getData().get(EVENT_LOCATION).toString(),
@@ -143,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
                         eventsList.add(event);
                     }
+
                     // Tell the adapter that the ArrayList is updated
                     // This will make it refresh the UI
                     adapter.notifyDataSetChanged();
@@ -156,8 +161,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-
 
 
     }

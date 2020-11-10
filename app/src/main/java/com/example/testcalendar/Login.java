@@ -44,35 +44,43 @@ public class Login extends AppCompatActivity {
         forgotTextLink = findViewById(R.id.forgotPassword);
 
 
+        // When user clicks on Login button this method gets call
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                // Getting inputs store in variables
                 String email = mEmail.getText().toString().trim();
                 String password = mPassword.getText().toString().trim();
 
+                // Checks whether email input is empty or not
                 if(TextUtils.isEmpty(email)){
                     mEmail.setError("Email is Required.");
                     return;
                 }
 
+                // Checks whether password input is empty or not
                 if(TextUtils.isEmpty(password)){
                     mPassword.setError("Password is Required.");
                     return;
                 }
 
+                // Checks whether password input length is long enough or not
                 if(password.length() < 6){
                     mPassword.setError("Password Must be >= 6 Characters");
                     return;
                 }
 
+                // Shows progress Bar on screen
                 progressBar.setVisibility(View.VISIBLE);
 
-                // authenticate the user
 
+                // authenticate the user using email and password
                 firebaseAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+
+                        // Checks whether task is successful or not
                         if(task.isSuccessful()){
                             Toast.makeText(Login.this, "Logged in Successfully", Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(getApplicationContext(),MainActivity.class));
@@ -86,6 +94,7 @@ public class Login extends AppCompatActivity {
             }
         });
 
+        // Opens Signup page for those who have not registered
         mCreateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,6 +102,7 @@ public class Login extends AppCompatActivity {
             }
         });
 
+        // Opens a Alert dailog for password reset link
         forgotTextLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

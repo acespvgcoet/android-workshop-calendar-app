@@ -19,16 +19,19 @@ public class Start extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
+        // Progress bar is shown on UI
         progressBar = findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
 
+        // Check whether user is already logged in or not
+        // If yes then directly show main page otherwise show login page
         firebaseAuth = FirebaseAuth.getInstance();
         if(firebaseAuth.getCurrentUser() != null)   {
             Intent intent = new Intent(Start.this, MainActivity.class);
             startActivity(intent);
         }
         else {
-            Intent intent = new Intent(Start.this, Signup.class);
+            Intent intent = new Intent(Start.this, Login.class);
             startActivity(intent);
         }
 

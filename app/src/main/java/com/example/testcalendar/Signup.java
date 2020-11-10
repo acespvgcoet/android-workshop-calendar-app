@@ -57,41 +57,53 @@ public class Signup extends AppCompatActivity {
         firebaseFirestore = FirebaseFirestore.getInstance();
         progressBar = findViewById(R.id.progressBar);
 
+        // When user clicks on Register button this method gets call
         mRegisterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                // Getting inputs store in variables
                 final String email = mEmail.getText().toString();
                 final String fullname = mFullName.getText().toString();
                 final String phone = mPhone.getText().toString();
                 String password = mPassword.getText().toString();
 
+                // Checks whether email input is empty or not
                 if(TextUtils.isEmpty(email))    {
                     mEmail.setError("Email is required");
                     return;
                 }
 
+                // Checks whether password input is empty or not
                 if(TextUtils.isEmpty(password))    {
                     mEmail.setError("Password is required");
                     return;
                 }
 
+                // Checks whether password input length is long enough or not
                 if(password.length() < 6)    {
                     mEmail.setError("Password Must be >= 6 Characters");
                     return;
                 }
 
+                // Checks whether phone number input is empty or not
                 if(TextUtils.isEmpty(phone))    {
                     mEmail.setError("Mobile number is required");
                     return;
                 }
 
+                // Shows progress Bar on screen
                 progressBar.setVisibility(View.VISIBLE);
 
+                // Creates new user using email and password
                 firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        // Checks whether task is successful or not
                         if(task.isSuccessful()) {
                             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+
+                            // Sends verification email to user
                             firebaseUser.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
@@ -104,7 +116,7 @@ public class Signup extends AppCompatActivity {
                                 }
                             });
 
-                            Toast.makeText(Signup.this, "User Created.", Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(Signup.this, "User Created.", Toast.LENGTH_SHORT).show();
 
                             userID = firebaseUser.getUid();
                             DocumentReference documentReference = firebaseFirestore.collection("users").document(userID);
@@ -112,6 +124,8 @@ public class Signup extends AppCompatActivity {
                             user.put("fullName",fullname);
                             user.put("email",email);
                             user.put("phone",phone);
+
+                            // Stores user information in database using user Unique ID
                             documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
@@ -123,6 +137,8 @@ public class Signup extends AppCompatActivity {
                                     Log.d(TAG, "onFailure: " + e.toString());
                                 }
                             });
+
+                            // Opens main page after signup process is completed
                             startActivity(new Intent(getApplicationContext(),MainActivity.class));
                         }
                         else {
@@ -139,6 +155,7 @@ public class Signup extends AppCompatActivity {
             }
         });
 
+        // Opens login page for those who have already registered
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
