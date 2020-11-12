@@ -113,7 +113,7 @@ public class Login extends AppCompatActivity {
                 passwordResetDialog.setMessage("Enter Your Email To Received Reset Link.");
                 passwordResetDialog.setView(resetMail);
 
-                passwordResetDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                passwordResetDialog.setPositiveButton("Send", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // extract the email and send reset link
@@ -133,7 +133,7 @@ public class Login extends AppCompatActivity {
                     }
                 });
 
-                passwordResetDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                passwordResetDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // close the dialog
